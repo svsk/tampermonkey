@@ -10,6 +10,7 @@
 
 (function() {
     'use strict';
+    
     $("h2").bind("click", function (e) {
         window["highlight"](this);
     });
@@ -82,5 +83,38 @@
             .css("left", (r + pad) + "px")
             .css("top", "0px")
             .fadeIn();
+    }
+
+    var storyboard = [];
+    var storyboardTimer = "";
+
+    function addToStoryboard(element, highlightDuration) {
+        storyboard.push({
+            element: element,
+            highlightDuration: highlightDuration
+        });
+    }
+
+    function playStoryboard() {
+        clearTimeout(storyboardTimer);
+        var storyboardCounter = 0;
+        playNext();
+        
+        function playNext() {
+            var currentEvent = storyboard[storyboardCounter];
+            
+            if (!currentEvent) {
+                clearTimeout(storyboardTimer);
+                return;
+            }
+
+            highlight(currentEvent.element);
+
+            storyboardTimer(function () {
+                hide();
+                storyboardCounter++;
+                setTimeout(function () { playNext(); }, 1000);
+            }, currentEvent.highlightDuration);
+        }
     }
 })();
