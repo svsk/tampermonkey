@@ -10,7 +10,7 @@
 
 (function() {
     'use strict';
-    
+
     $("h2").bind("click", function (e) {
         window["highlight"](this);
     });
@@ -110,7 +110,7 @@
 
             highlight(currentEvent.element);
 
-            storyboardTimer(function () {
+            storyboardTimer = setTimeout(function () {
                 hide();
                 storyboardCounter++;
                 setTimeout(function () { playNext(); }, 1000);
