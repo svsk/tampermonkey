@@ -19,7 +19,8 @@
     var interval = setInterval(function () {
         var overlay = document.querySelectorAll("." + overlayClassName)[0];
     
-        if (overlay && overlay.style.backgroundColor === overlayBackgroundProperty) {    
+        if (overlay && overlay.style.backgroundColor === overlayBackgroundProperty) {   
+            overlay.parentNode.removeChild(overlay);
             console.log("Removed the sign up overlay");
             clearInterval(interval);
         }
