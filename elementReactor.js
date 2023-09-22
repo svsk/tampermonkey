@@ -13,6 +13,7 @@ class ElementReactor {
             do: (callback) => {
                 reaction.callback = callback;
                 this.reactions.push(reaction);
+                this.evaluateReactions();
                 return this;
             },
         };
