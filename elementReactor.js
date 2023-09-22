@@ -13,7 +13,7 @@ class ElementReactor {
             do: (callback) => {
                 reaction.callback = callback;
                 this.reactions.push(reaction);
-                this.evaluateReactions();
+                this.evaluateReaction(reaction);
                 return this;
             },
         };
@@ -29,7 +29,7 @@ class ElementReactor {
         const config = { attributes: true, childList: true, subtree: true };
 
         // Callback function to execute when mutations are observed
-        const callback = (mutationList, observer) => this.evaluateReactions();
+        const callback = (mutationList, observer) => this.evaluateAllReactions();
 
         // Create an observer instance linked to the callback function
         this.observer = new MutationObserver(callback);
@@ -38,17 +38,19 @@ class ElementReactor {
         this.observer.observe(targetNode, config);
     }
 
-    evaluateReactions() {
-        this.reactions.forEach((reaction) => {
-            const elementExists = !!document.querySelectorAll(reaction.selector).length;
+    evaluateAllReactions() {
+        this.reactions.forEach((reaction) => this.evaluateReaction(reaction));
+    }
 
-            if (elementExists && !reaction.active) {
-                reaction.active = true;
-                reaction.callback();
-            } else if (!elementExists && reaction.active) {
-                reaction.active = false;
-            }
-        });
+    evaluateReaction(reaction) {
+        const elementExists = !!document.querySelectorAll(reaction.selector).length;
+
+        if (elementExists && !reaction.active) {
+            reaction.active = true;
+            reaction.callback();
+        } else if (!elementExists && reaction.active) {
+            reaction.active = false;
+        }
     }
 }
 
