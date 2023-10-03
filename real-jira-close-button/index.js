@@ -1,7 +1,9 @@
 // ==UserScript==
 // @name         Real Jira Close Button
 // @namespace    http://tampermonkey.net/
-// @version      1.0
+// @version      1.1
+// @updateURL	 https://raw.githubusercontent.com/svsk/tampermonkey/master/real-jira-close-button/index.js
+// @downloadURL  https://raw.githubusercontent.com/svsk/tampermonkey/master/real-jira-close-button/index.js
 // @description  Adds a real close button to Jira modals
 // @author       Sverre Skuland
 // @match        https://*.atlassian.net/jira/*
@@ -9,6 +11,7 @@
 // @grant        none
 // ==/UserScript==
 
+// Use common ElementReactor class
 class ElementReactor {
     reactions = [];
     observer = null;
