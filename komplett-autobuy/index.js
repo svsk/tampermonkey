@@ -40,7 +40,7 @@
         const tryInterval = 10000;
         const tickDuration = 500;
 
-        msUntilNextTry = tryInterval;
+        msUntilNextTry = 0;
 
         if (isAutoBuying) {
             autoBuyInterval = setInterval(async () => {
@@ -53,6 +53,7 @@
                     const success = await tryBuy();
                     if (success) {
                         clearInterval(autoBuyInterval);
+                        window.location.href = 'https://www.komplett.no/cart';
                     } else {
                         msUntilNextTry = tryInterval;
                     }
