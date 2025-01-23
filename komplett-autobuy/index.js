@@ -52,6 +52,7 @@
                     autoBuyButton.innerText = `Prøver!`;
                     const success = await tryBuy();
                     if (success) {
+                        autoBuyButton.innerText = `Hurra!`;
                         clearInterval(autoBuyInterval);
                         window.location.href = 'https://www.komplett.no/cart';
                     } else {
