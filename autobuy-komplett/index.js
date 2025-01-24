@@ -54,7 +54,7 @@
                     if (success) {
                         autoBuyButton.innerText = `Hurra!`;
                         clearInterval(autoBuyInterval);
-                        window.location.href = 'https://www.komplett.no/cart';
+                        window.location.href = 'https://www.komplett.no/cart?autocheckout=true';
                     } else {
                         msUntilNextTry = tryInterval;
                     }
