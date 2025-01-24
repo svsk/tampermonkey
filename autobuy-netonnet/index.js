@@ -1,10 +1,11 @@
 // ==UserScript==
-// @name         Produkt Autokjøp Mal
+// @name         Autokjøp NetOnNet
 // @namespace    http://tampermonkey.net/
-// @version      2025-01-23
-// @description  Mal for å sette opp autokjøp av produkter på forskjellige nettsider.
-// @author       Sverre S.
-// @match        *
+// @version      2025-01-24
+// @description  try to take over the world!
+// @author       You
+// @match        https://www.netonnet.no/art/*
+// @icon         https://www.google.com/s2/favicons?sz=64&domain=netonnet.no
 // @grant        none
 // ==/UserScript==
 
@@ -14,17 +15,20 @@
     ////// Configuration starts here //////
 
     const tryInterval = 10000;
-    const buttonParentSelector = '';
-    const addToCartEndpoint = '';
-    const successRedirectLocation = '';
-    const contentType = '' || 'application/json';
+    const buttonParentSelector = '#productPurchaseBoxContainer';
+    const addToCartEndpoint = 'https://www.netonnet.no/Checkout/AddItem/';
+    const successRedirectLocation = 'https://www.netonnet.no/checkout';
+    const contentType = 'application/x-www-form-urlencoded; charset=UTF-8' || 'application/json';
 
     /** @param { { label: string } } props */
-    const primaryButton = (props) => `<button>${props.label}</button>`;
+    const primaryButton = (props) => `
+		<button type="button" class="btn btn-primary btn-block btn-lg font-size-15" style="margin-bottom: 10px">
+			${props.label}
+		</button>`;
 
     /** Add code to this function so that it returns the referrer */
     const resolveRequestReferrer = () => {
-        return null;
+        return window.location.href;
     };
 
     /**
@@ -32,14 +36,27 @@
      * Should be a JSON string (probably).
      */
     const resolveRequestBody = () => {
-        return null;
+        const productId = window.location.pathname.split('/').at(-2).split('.')[0];
+        return `itemId=${productId}&isCheckout=false&confirmTradeInItems=False`;
     };
 
     /**
      * Add code to this function so that it returns a boolean indicating whether the request was successful.
      * @param {Response} requestResponse */
     const evaluateSuccess = async (requestResponse) => {
-        return false;
+        try {
+            const text = await requestResponse.text();
+
+            const domParser = new DOMParser();
+            const returnedDom = domParser.parseFromString(text, 'text/html');
+            const cartSummaryContent = returnedDom.body.querySelector('.cartSummaryTotalPrice').innerText;
+
+            const failed = cartSummaryContent.includes(' 0,–');
+            return !failed;
+        } catch (err) {
+            console.error(err);
+            return false;
+        }
     };
 
     ////// Configuration ends here - Don't edit anything below unless you know what you're doing //////
