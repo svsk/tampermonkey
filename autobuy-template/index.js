@@ -59,35 +59,49 @@
 
     autoBuyButton.addEventListener('click', async () => {
         isAutoBuying = !isAutoBuying;
-        setAutoBuy(isAutoBuying);
+        toggleAutoBuyInterval(isAutoBuying);
     });
 
-    function setAutoBuy(isAutoBuying) {
-        const tickDuration = 500;
-
-        msUntilNextTry = 0;
+    function toggleAutoBuyInterval(isAutoBuying) {
+        clearInterval(autoBuyInterval);
 
         if (isAutoBuying) {
+            const tickDuration = 500;
+            msUntilNextTry = 0;
+
+            let trying = false;
             autoBuyInterval = setInterval(async () => {
                 msUntilNextTry -= tickDuration;
-                const remaining = Math.floor(msUntilNextTry / 1000);
-                autoBuyButton.innerText = `Prøver igjen om ${remaining}...`;
+                if (trying) {
+                    return;
+                }
 
-                if (msUntilNextTry <= 0) {
-                    autoBuyButton.innerText = `Prøver!`;
-                    const success = await tryBuy();
-                    if (success) {
-                        autoBuyButton.innerText = `Hurra!`;
-                        clearInterval(autoBuyInterval);
-                        window.location.href = successRedirectLocation;
-                    } else {
+                try {
+                    if (msUntilNextTry <= 0) {
+                        trying = true;
+                        autoBuyButton.innerText = `Prøver!`;
+                        await executeBuyAttempt();
                         msUntilNextTry = tryInterval;
+                    } else {
+                        const remaining = Math.floor(msUntilNextTry / 1000);
+                        autoBuyButton.innerText = `Prøver igjen om ${remaining}...`;
                     }
+                } finally {
+                    trying = false;
                 }
             }, tickDuration);
         } else {
             autoBuyButton.innerText = `Autokjøp`;
+        }
+    }
+
+    async function executeBuyAttempt() {
+        const success = await tryBuy();
+
+        if (success) {
             clearInterval(autoBuyInterval);
+            autoBuyButton.innerText = `Hurra!`;
+            window.location.href = successRedirectLocation;
         }
     }
 
@@ -98,7 +112,8 @@
                 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:134.0) Gecko/20100101 Firefox/134.0',
                 Accept: '*/*',
                 'Accept-Language': 'en-US,en;q=0.5',
-                'Content-Type': 'text/plain;charset=UTF-8',
+                // 'Content-Type': 'text/plain;charset=UTF-8', <-- maybe this??
+                'Content-Type': 'application/json',
                 'Sec-Fetch-Dest': 'empty',
                 'Sec-Fetch-Mode': 'cors',
                 'Sec-Fetch-Site': 'same-origin',

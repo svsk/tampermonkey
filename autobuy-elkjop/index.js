@@ -1,11 +1,10 @@
 // ==UserScript==
-// @name         Komplett Autokjøp
+// @name         Produkt Autokjøp Mal
 // @namespace    http://tampermonkey.net/
 // @version      2025-01-23
-// @description  Autokjøp på Komplett.no
+// @description  Mal for å sette opp autokjøp av produkter på forskjellige nettsider.
 // @author       Sverre S.
-// @match        https://www.komplett.no/product/*
-// @icon         https://www.google.com/s2/favicons?sz=64&domain=komplett.no
+// @match        https://www.elkjop.no/product/*
 // @grant        none
 // ==/UserScript==
 
@@ -15,15 +14,16 @@
     ////// Configuration starts here //////
 
     const tryInterval = 10000;
-    const buttonParentSelector = '.actionButton-completeGrid';
-    const addToCartEndpoint = 'https://www.komplett.no/cart/api/addProductToCartAsync';
-    const successRedirectLocation = 'https://www.komplett.no/cart?autocheckout=true';
+    const buttonParentSelector = '[data-cro="pdp-main-price-box"]';
+    const addToCartEndpoint = 'https://www.elkjop.no/api/cart';
+    const successRedirectLocation = 'https://www.elkjop.no/cart';
 
     /** @param { { label: string } } props */
-    const primaryButton = (props) =>
-        `<button class="btn-large primary full-width">
-            <span>${props.label}</span>
-        </button>`;
+    const primaryButton = (props) => `
+		<button class="flex items-center justify-center button button-primary text-xl py-2 px-[22px]" >
+			<span class="opacity-100">${props.label}</span>
+		</button>
+	`;
 
     /** Add code to this function so that it returns the referrer */
     const resolveRequestReferrer = () => {
@@ -35,13 +35,16 @@
      * Should be a JSON string (probably).
      */
     const resolveRequestBody = () => {
-        const productId = window.location.pathname.split('/')[2];
+        const productId = window.location.pathname.split('/').at(-1);
 
         return JSON.stringify({
-            productId,
-            quantity: 1,
-            offerId: `KOMPLETT-310-${productId}`,
-            configServices: [],
+            articles: [
+                {
+                    sku: productId,
+                    quantity: 1,
+                    services: [],
+                },
+            ],
         });
     };
 
@@ -111,7 +114,6 @@
         const success = await tryBuy();
 
         if (success) {
-            clearInterval(autoBuyInterval);
             autoBuyButton.innerText = `Hurra!`;
             window.location.href = successRedirectLocation;
         }
